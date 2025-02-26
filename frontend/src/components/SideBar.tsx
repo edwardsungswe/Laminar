@@ -11,25 +11,24 @@ import GroupIcon from '@mui/icons-material/Group'
 
 export default function SideBar() {
     return (
-        <div className="flex flex-col gap-8 w-1/6 h-full px-8 py-8">
-            <div className="flex justify-center align-items h-fit">
-                <div className="flex gap-2 justify-start items-center w-full">
-                    <WavesIcon sx={{ width: 40, height: 40 }} className="text-blue-400" />
-                    <h1 className="font-bold text-2xl tracking-wide">LAMINAR</h1>
-                </div>
+        <div className="flex flex-col gap-4 w-1/6 h-full font-light">
+            <div className="flex justify-between items-center w-full h-1/16 px-4 border-b-1 border-med">
+                <button className="w-full h-10 border-1 border-med rounded-lg text-lg">Ryan Lee</button>
             </div>
-            <button className="flex gap-x-4 justify-center items-center w-full h-16 px-4 mb-4 rounded-xl bg-blue-400 text-white drop-shadow-sm">
-                <Add />
-                <h1 className="w-full">Compose</h1>
-            </button>
-            <div className="flex flex-col gap-8 h-7/8">
-                <div className="flex flex-col gap-8">
+            <div className="px-4">
+                <button className="flex gap-x-4 justify-center items-center w-full h-10 px-4 mb-4 rounded-xl font-medium text-black bg-light transition duration-150 cursor-pointer hover:bg-white hover:scale-102">
+                    <Add />
+                    <h1 className="w-full">Compose</h1>
+                </button>
+            </div>
+            <div className="flex flex-col gap-8">
+                <div className="flex flex-col gap-8 px-4">
                     <div className="flex w-full justify-between font-medium">
                         <span className="flex gap-4">
-                            <InboxIcon className="text-blue-400" />
+                            <InboxIcon className="text-white" />
                             <h2>Inbox</h2>
                         </span>
-                        <div className="flex justify-center items-center h-6 w-6 rounded-full text-sm text-blue-400 bg-blue-100">97</div>
+                        <div className="flex justify-center items-center h-6 w-6 rounded-full text-sm text-black bg-white">97</div>
                     </div>
                     <div className="flex w-full justify-between font-medium">
                         <span className="flex gap-4">
@@ -61,7 +60,7 @@ export default function SideBar() {
                     </div>
                 </div>
                 <hr></hr>
-                <div className="flex flex-col gap-8">
+                <div className="flex flex-col gap-8 px-4">
                     <div className="flex w-full justify-between font-medium">
                         <span className="flex gap-4">
                             <FamilyRestroomIcon className="text-gray-400" />
