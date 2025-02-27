@@ -1,10 +1,13 @@
-import Emails from "@/data/Emails"
-import EmailRow from "@/components/EmailRow"
-import { Search } from "@mui/icons-material"
 import { useState } from "react"
+import { Emails, EmailType } from "@/data/Emails"
+import { Search } from 'lucide-react'
+
+import EmailRow from "@/components/EmailRow"
 
 export default function EmailBar() {
     const [inbox, setInbox] = useState<string>("all")
+    const [emailInView, setEmailInView] = useState<string|null>(null)
+    const [selectedEmails, setSelectedEmails] = useState<string[]>([])
 
     return (
         <div className="flex flex-col gap-4 w-1/4 h-full border-x-1 border-med">
@@ -27,14 +30,25 @@ export default function EmailBar() {
             </div>
             <form className="w-full px-4">
                 <div className="relative">
-                    <Search className="absolute left-2 top-2 h-4 w-4 text-med" />
+                    <Search className="absolute left-3 top-3 h-4 w-4 text-med" />
                     <input className="w-full h-10 pl-10 border-1 border-med rounded-md text-sm font-light" placeholder='Looking for something?' />
                 </div>
             </form>
             <div className="flex flex-col gap-4 px-4">
-                {Emails.map((email, idx) => {
+                {Emails.map((email: EmailType) => {
                     return (
-                        <EmailRow key={email.id} selected={idx === 0} title={email.title} sender={email.sender} content={email.content} timestamp={email.timestamp} />
+                        <EmailRow 
+                            key={email.id}
+                            id={email.id}
+                            selected={emailInView}
+                            title={email.title}
+                            sender={email.sender}
+                            content={email.content}
+                            timestamp={email.timestamp}
+                            selectedEmails={selectedEmails}
+                            setSelectedEmails={setSelectedEmails}
+                            setEmailInView={setEmailInView}
+                        />
                     )
                 })} 
             </div>
