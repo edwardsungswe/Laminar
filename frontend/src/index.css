@@ -26,4 +26,5 @@ body {
     color: white;
     margin: 0;
     cursor: default;
+    overflow-x: hidden;
 }

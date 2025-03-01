@@ -1,4 +1,4 @@
-import { useState, useRef, Dispatch, SetStateAction } from "react"
+import { useState, useRef } from "react"
 
 import { useEmailDisplayContext } from "@/context/EmailDisplayContext"
 
@@ -10,23 +10,13 @@ type EmailRowProps = {
     timestamp: string
 }
 
-export default function EmailRow({
-    id,
-    title,
-    sender,
-    content,
-    timestamp,
-}: EmailRowProps) {
-    const { selectedEmails, setSelectedEmails, emailInView, setEmailInView } =
-        useEmailDisplayContext()
+export default function EmailRow({ id, title, sender, content, timestamp }: EmailRowProps) {
+    const { selectedEmails, setSelectedEmails, emailInView, setEmailInView } = useEmailDisplayContext()
     const [checked, setChecked] = useState<boolean>(false)
     const checkboxRef = useRef<HTMLInputElement>(null)
 
-    let emailStyle =
-        "flex flex-col justify-center gap-2 w-full h-36 p-4 border-1 border-med rounded-lg transition duration-75 cursor-pointer "
-    emailInView === id
-        ? (emailStyle += "bg-med-dark")
-        : (emailStyle += "hover:bg-dark")
+    let emailStyle = "flex flex-col gap-2 w-full h-34 p-4 border-1 border-med rounded-lg cursor-pointer "
+    emailInView === id ? (emailStyle += "bg-med-dark") : (emailStyle += "hover:bg-dark")
 
     function handleEmailRowClick(event: any) {
         if (event.target !== checkboxRef.current) setEmailInView(id)
@@ -39,9 +29,7 @@ export default function EmailRow({
             setSelectedEmails([...selectedEmails, id])
         } else {
             setChecked(false)
-            setSelectedEmails(
-                selectedEmails.filter((emailId: string) => emailId !== id)
-            )
+            setSelectedEmails(selectedEmails.filter((emailId: string) => emailId !== id))
         }
     }
 
@@ -63,7 +51,7 @@ export default function EmailRow({
                         <input
                             ref={checkboxRef}
                             type="checkbox"
-                            className="peer h-6 w-6 cursor-pointer transition-all duration-75 appearance-none rounded shadow hover:shadow-md border border-med-light checked:bg-light checked:border-white"
+                            className="peer h-6 w-6 cursor-pointer appearance-none rounded shadow hover:shadow-md border border-med-light checked:bg-light checked:border-white"
                         />
                         <span className="absolute text-black opacity-0 peer-checked:opacity-100 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 pointer-events-none">
                             <svg
@@ -87,9 +75,7 @@ export default function EmailRow({
                 <p className="text-xs text-light font-semibold">{timestamp}</p>
             </div>
             <h2 className="truncate font-bold">{title}</h2>
-            <p className="text-xs text-light line-clamp-2 leading-5">
-                {content}
-            </p>
+            <p className="text-xs text-light line-clamp-2 leading-5">{content}</p>
         </div>
     )
 }

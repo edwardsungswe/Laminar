@@ -1,75 +1,39 @@
-import { IconButton } from "@/components/Buttons"
+import { useState, useEffect } from "react"
+import { useEmailDisplayContext } from "@/context/EmailDisplayContext"
 
-import {
-    Archive,
-    Trash,
-    SendHorizontal,
-    Forward,
-    Reply,
-    ReplyAll,
-    EllipsisVertical,
-    Package2,
-} from "lucide-react"
+import EmailViewHeader from "@/components/EmailViewHeader"
 
-export default function EmailView({
-    title,
-    sender,
-    content,
-    timestamp,
-}: {
-    title: string
-    sender: string
-    content: string
-    timestamp: string
-}) {
+import { Emails, EmailType } from "@/data/Emails"
+
+export default function EmailView() {
+    const [email, setEmail] = useState<EmailType | null>(null)
+    const { emailInView } = useEmailDisplayContext()
+
+    useEffect(() => {
+        setEmail(Emails.find((email: EmailType) => email.id === emailInView) || email)
+    }, [emailInView])
+
     return (
-        <div className="flex flex-col w-full h-full">
-            <div className="flex justify-between items-center w-full h-1/16 min-h-18 px-8 border-b-1 border-med">
-                <div className="flex gap-4 items-center">
-                    <IconButton name={"Archive"}>
-                        <Archive className="w-5 h-5" />
-                    </IconButton>
-                    <IconButton name={"Move"}>
-                        <Package2 className="w-5 h-5" />
-                    </IconButton>
-                    <div
-                        data-orientation="vertical"
-                        className="shrink-0 bg-med w-[1px] h-6 mx-2"
-                    />
-                    <IconButton name={"Delete"}>
-                        <Trash className="w-5 h-5" />
-                    </IconButton>
+        <div className={`relative flex flex-col w-${emailInView ? "full" : "0"} h-full`}>
+            {email && (
+                <div
+                    className={`absolute top-0 left-0 w-full h-full overflow-y-scroll transition-opacity duration-500 ${
+                        emailInView ? "opacity-100" : "opacity-0"
+                    }`}
+                >
+                    <EmailViewHeader />
+                    <div className="w-full h-32 p-16">
+                        <h1>{email.title}</h1>
+                        <span>
+                            <h1>{email.sender}</h1>
+                            <h3>{email.timestamp} </h3>
+                        </span>
+                    </div>
+                    <div className="w-full p-16">
+                        <p>{email.content}</p>
+                    </div>
                 </div>
-                <div className="flex gap-4 items-center">
-                    <IconButton name={"Reply"}>
-                        <Reply className="w-5 h-5" />
-                    </IconButton>
-                    <IconButton name={"Reply All"}>
-                        <ReplyAll className="w-5 h-5" />
-                    </IconButton>
-                    <IconButton name={"Forward"}>
-                        <Forward className="w-5 h-5" />
-                    </IconButton>
-                    <IconButton name={"Send"}>
-                        <SendHorizontal className="w-5 h-5" />
-                    </IconButton>
-                    <div
-                        data-orientation="vertical"
-                        className="shrink-0 bg-med w-[1px] h-6 mx-2"
-                    />
-                    <IconButton name={"More"}>
-                        <EllipsisVertical className="w-5 h-5" />
-                    </IconButton>
-                </div>
-            </div>
-            <h1>{title}</h1>
-            <span>
-                <h1>{sender}</h1>
-                <h3>{timestamp} </h3>
-            </span>
-            <div>
-                <p>{content}</p>
-            </div>
+            )}
         </div>
     )
 }

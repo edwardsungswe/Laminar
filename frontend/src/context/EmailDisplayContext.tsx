@@ -3,10 +3,7 @@ import { createContext, useContext, useState } from "react"
 const EmailDisplayContext = createContext<any>(null)
 
 export function useEmailDisplayContext() {
-    if (useEmailDisplayContext === null)
-        throw new Error(
-            "useEmailDisplayContext must be used within a EmailDisplayProvider"
-        )
+    if (EmailDisplayContext === null) throw new Error("useEmailDisplayContext must be used within a EmailDisplayProvider")
     return useContext(EmailDisplayContext)
 }
 
