@@ -5,7 +5,11 @@ import { useEmailDisplayContext } from "@/context/EmailDisplayContext"
 type EmailRowProps = {
     id: string
     title: string
-    sender: string
+    sender: {
+        name: string
+        email: string
+        icon?: string // Optional field for sender icon (URL)
+    }
     content: string
     timestamp: string
 }
@@ -70,7 +74,7 @@ export default function EmailRow({ id, title, sender, content, timestamp }: Emai
                             </svg>
                         </span>
                     </label>
-                    <h4 className="text-sm truncate">{sender}</h4>
+                    <h4 className="text-sm truncate">{sender.name}</h4>
                 </span>
                 <p className="text-xs text-light font-semibold">{timestamp}</p>
             </div>

@@ -22,15 +22,24 @@ export default function EmailView() {
                     }`}
                 >
                     <EmailViewHeader />
-                    <div className="w-full h-32 p-16">
-                        <h1>{email.title}</h1>
-                        <span>
-                            <h1>{email.sender}</h1>
-                            <h3>{email.timestamp} </h3>
-                        </span>
-                    </div>
-                    <div className="w-full p-16">
-                        <p>{email.content}</p>
+                    <div className="p-6 max-w-3xl mx-auto shadow-md rounded-lg">
+                        {/* Sender Information */}
+                        <div className="flex items-center justify-between mb-2">
+                            <div className="flex items-center space-x-3">
+                                {email.sender.icon && <img src={email.sender.icon} alt={email.sender.name} className="w-10 h-10 rounded-full" />}
+                                <div>
+                                    <p className="text-sm font-semibold">{email.sender.name}</p>
+                                    <p className="text-xs text-gray-500">{email.sender.email}</p>
+                                </div>
+                            </div>
+                            <p className="text-xs text-right">{email.timestamp}</p>
+                        </div>
+
+                        <h1 className="text-xl font-bold mt-2">{email.title}</h1>
+
+                        <hr className="border-gray-300 my-4" />
+
+                        <p className="whitespace-pre-wrap">{email.content}</p>
                     </div>
                 </div>
             )}
