@@ -1,7 +1,6 @@
 import { useState, useRef } from "react"
-
 import { useEmailDisplayContext } from "@/context/EmailDisplayContext"
-
+import { updateEmailReadStatus } from "@/services/email"
 type EmailRowProps = {
     id: string
     title: string
@@ -12,18 +11,26 @@ type EmailRowProps = {
     }
     content: string
     timestamp: string
+    read: boolean
 }
 
-export default function EmailRow({ id, title, sender, content, timestamp }: EmailRowProps) {
+export default function EmailRow({ id, title, sender, content, timestamp, read }: EmailRowProps) {
     const { selectedEmails, setSelectedEmails, emailInView, setEmailInView } = useEmailDisplayContext()
     const [checked, setChecked] = useState<boolean>(false)
     const checkboxRef = useRef<HTMLInputElement>(null)
 
-    let emailStyle = "flex flex-col gap-2 w-full h-34 p-4 border-1 border-med rounded-lg cursor-pointer "
-    emailInView === id ? (emailStyle += "bg-med-dark") : (emailStyle += "hover:bg-dark")
+    let emailStyle = `flex flex-col gap-2 w-full h-34 p-4 border-1 border-med rounded-lg cursor-pointer
+    ${emailInView === id ? "bg-med-dark" : read ? "hover:bg-dark" : "bg-gray-600"}` //Change unread email color to something better later
+    //we can choose between colored background or the white dot that I added as well
 
     function handleEmailRowClick(event: any) {
-        if (event.target !== checkboxRef.current) setEmailInView(id)
+        if (event.target !== checkboxRef.current) {
+            setEmailInView(id)
+        }
+        if (read === false) {
+            updateEmailReadStatus(id, true)
+            console.log("Read Status Changed")
+        }
     }
 
     function handleCheckboxClick(event: any) {
@@ -75,6 +82,7 @@ export default function EmailRow({ id, title, sender, content, timestamp }: Emai
                         </span>
                     </label>
                     <h4 className="text-sm truncate">{sender.name}</h4>
+                    {!read && <span className="ml-2 w-2 h-2 bg-white rounded-full"></span>}
                 </span>
                 <p className="text-xs text-light font-semibold">{timestamp}</p>
             </div>

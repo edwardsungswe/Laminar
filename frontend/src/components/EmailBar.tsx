@@ -32,6 +32,7 @@ export default function EmailBar() {
                             sender={email.sender}
                             content={email.content}
                             timestamp={email.timestamp}
+                            read={email.read}
                         />
                     )
                 })}
