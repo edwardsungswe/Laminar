@@ -1,0 +1,190 @@
+import type { Email, Folder, FilterTab, ThemePreset } from "@/types";
+
+export const THEME_PRESETS: ThemePreset[] = [
+  {
+    name: "ocean",
+    colors: {
+      gradientFrom: "#6b9dcc",
+      gradientTo: "#8fb8d0",
+      glassBg: "rgba(255, 255, 255, 0.15)",
+      glassBorder: "rgba(255, 255, 255, 0.25)",
+      accent: "#3b82f6",
+      accentHover: "#2563eb",
+      sidebarBg: "rgba(0, 0, 0, 0.2)",
+      sidebarText: "rgba(255, 255, 255, 0.85)",
+      sidebarActive: "rgba(255, 255, 255, 0.15)",
+    },
+  },
+  {
+    name: "sunset",
+    colors: {
+      gradientFrom: "#f97316",
+      gradientTo: "#ec4899",
+      glassBg: "rgba(255, 255, 255, 0.15)",
+      glassBorder: "rgba(255, 255, 255, 0.25)",
+      accent: "#f59e0b",
+      accentHover: "#d97706",
+      sidebarBg: "rgba(0, 0, 0, 0.2)",
+      sidebarText: "rgba(255, 255, 255, 0.85)",
+      sidebarActive: "rgba(255, 255, 255, 0.15)",
+    },
+  },
+  {
+    name: "forest",
+    colors: {
+      gradientFrom: "#16a34a",
+      gradientTo: "#0d9488",
+      glassBg: "rgba(255, 255, 255, 0.15)",
+      glassBorder: "rgba(255, 255, 255, 0.25)",
+      accent: "#22c55e",
+      accentHover: "#16a34a",
+      sidebarBg: "rgba(0, 0, 0, 0.2)",
+      sidebarText: "rgba(255, 255, 255, 0.85)",
+      sidebarActive: "rgba(255, 255, 255, 0.15)",
+    },
+  },
+  {
+    name: "slate",
+    colors: {
+      gradientFrom: "#475569",
+      gradientTo: "#334155",
+      glassBg: "rgba(255, 255, 255, 0.1)",
+      glassBorder: "rgba(255, 255, 255, 0.15)",
+      accent: "#94a3b8",
+      accentHover: "#64748b",
+      sidebarBg: "rgba(0, 0, 0, 0.25)",
+      sidebarText: "rgba(255, 255, 255, 0.8)",
+      sidebarActive: "rgba(255, 255, 255, 0.12)",
+    },
+  },
+  {
+    name: "lavender",
+    colors: {
+      gradientFrom: "#8b5cf6",
+      gradientTo: "#a78bfa",
+      glassBg: "rgba(255, 255, 255, 0.15)",
+      glassBorder: "rgba(255, 255, 255, 0.25)",
+      accent: "#a78bfa",
+      accentHover: "#8b5cf6",
+      sidebarBg: "rgba(0, 0, 0, 0.2)",
+      sidebarText: "rgba(255, 255, 255, 0.85)",
+      sidebarActive: "rgba(255, 255, 255, 0.15)",
+    },
+  },
+];
+
+export const FOLDERS: Folder[] = [
+  { id: "inbox", name: "Inbox", icon: "Inbox", count: 32 },
+  { id: "starred", name: "Starred", icon: "Star" },
+  { id: "sent", name: "Sent", icon: "Send" },
+  { id: "draft", name: "Draft", icon: "FileText" },
+  { id: "done", name: "Done", icon: "CheckCircle" },
+];
+
+export const FILTER_TABS: FilterTab[] = [
+  { id: "inbox", label: "Inbox", count: 12 },
+  { id: "team", label: "Team" },
+  { id: "calendar", label: "Calendar" },
+  { id: "attachment", label: "Attachment" },
+];
+
+export const MOCK_EMAILS: Email[] = [
+  {
+    id: "1",
+    from: { name: "Joe", email: "joe@example.com" },
+    to: [{ name: "Thomas", email: "thomas@laminar.email" }],
+    subject: "Freelance Contract",
+    preview:
+      "Hi Thomas, attached is the signed contract, des...",
+    date: new Date("2026-03-27T10:30:00"),
+    isRead: false,
+    isStarred: false,
+    labels: ["Legal", "Freelance"],
+    hasAttachment: false,
+    threadId: "t1",
+  },
+  {
+    id: "2",
+    from: { name: "Lauren", email: "lauren@example.com" },
+    to: [{ name: "Thomas", email: "thomas@laminar.email" }],
+    subject: "New feature announcement",
+    preview:
+      "Great news! The new feature we discussed has been implemen...",
+    date: new Date("2026-03-18T14:00:00"),
+    isRead: false,
+    isStarred: false,
+    labels: [],
+    hasAttachment: false,
+    threadId: "t2",
+  },
+  {
+    id: "3",
+    from: { name: "Chris, Akash", email: "chris@example.com" },
+    to: [{ name: "Thomas", email: "thomas@laminar.email" }],
+    subject: "Meeting reminder",
+    preview:
+      "Hi all, just a reminder about our meeting scheduled for this Th...",
+    date: new Date("2026-03-17T09:15:00"),
+    isRead: true,
+    isStarred: false,
+    labels: ["Dev 3.0"],
+    hasAttachment: false,
+    threadId: "t3",
+  },
+  {
+    id: "4",
+    from: { name: "Rodrigo", email: "rodrigo@example.com" },
+    to: [{ name: "Thomas", email: "thomas@laminar.email" }],
+    subject: "Project update",
+    preview:
+      "Hello team, I wanted to share an update on the project timeline. We are on trac...",
+    date: new Date("2026-03-16T11:45:00"),
+    isRead: true,
+    isStarred: false,
+    labels: [],
+    hasAttachment: false,
+    threadId: "t4",
+  },
+  {
+    id: "5",
+    from: { name: "Ehein", email: "ehein@example.com" },
+    to: [{ name: "Thomas", email: "thomas@laminar.email" }],
+    subject: "Feedback request",
+    preview:
+      "Hi everyone, I would appreciate your feedback on the latest update to the...",
+    date: new Date("2026-03-15T16:30:00"),
+    isRead: true,
+    isStarred: false,
+    labels: [],
+    hasAttachment: false,
+    threadId: "t5",
+  },
+  {
+    id: "6",
+    from: { name: "Mike", email: "mike@example.com" },
+    to: [{ name: "Thomas", email: "thomas@laminar.email" }],
+    subject: "Invoice Submission",
+    preview:
+      "Dear Thomas, please find attached the invoice for my recent work. Let me...",
+    date: new Date("2026-03-14T13:00:00"),
+    isRead: true,
+    isStarred: false,
+    labels: [],
+    hasAttachment: true,
+    threadId: "t6",
+  },
+  {
+    id: "7",
+    from: { name: "Lisa", email: "lisa@example.com" },
+    to: [{ name: "Thomas", email: "thomas@laminar.email" }],
+    subject: "Project Proposal",
+    preview:
+      "Hello team, I've submitted the proposal for the new project...",
+    date: new Date("2026-03-13T10:00:00"),
+    isRead: true,
+    isStarred: false,
+    labels: [],
+    hasAttachment: true,
+    threadId: "t7",
+  },
+];

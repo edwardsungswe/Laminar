@@ -1,0 +1,52 @@
+# Dependencies
+node_modules/
+vendor/
+
+# Build outputs
+dist/
+build/
+*.exe
+*.dll
+*.so
+*.dylib
+
+# Go
+apps/server/tmp/
+*.test
+*.out
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+
+# Coverage
+coverage/
+*.lcov
+
+# Electron
+apps/desktop/dist/
+
+# Terraform / CDK
+infra/cdk.out/
+*.tfstate
+*.tfstate.backup
+
+# Misc
+*.pem
+credentials.json
