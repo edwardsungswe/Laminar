@@ -18,12 +18,14 @@ Three applications share a monorepo:
 - **`apps/desktop/`** — Electron wrapper that loads the web app
 
 Supporting packages:
+
 - **`packages/shared-types/`** — TypeScript interfaces for API contracts between frontend and backend
 - **`infra/`** — AWS CDK (TypeScript) infrastructure stacks
 
 ## Common Commands
 
 ### Local Development
+
 ```bash
 docker-compose up -d                          # Start PostgreSQL, Redis, MinIO (S3), Mailhog
 cd apps/server && go run cmd/api/main.go      # Start API server
@@ -33,6 +35,7 @@ cd apps/web && pnpm dev                       # Start frontend (localhost:3000, 
 ```
 
 ### Build
+
 ```bash
 pnpm build                                    # Build all packages via Turborepo
 cd apps/server && go build ./cmd/api          # Build API binary
@@ -41,6 +44,7 @@ cd apps/server && go build ./cmd/worker       # Build worker binary
 ```
 
 ### Test
+
 ```bash
 cd apps/server && go test ./...               # Run all Go tests
 cd apps/server && go test ./internal/email/   # Run tests for a single package
@@ -48,9 +52,11 @@ cd apps/web && pnpm test                      # Run frontend tests
 ```
 
 ### Database Migrations
+
 Migrations live in `apps/server/migrations/` using golang-migrate. Files follow the pattern `{NNN}_{name}.up.sql` / `{NNN}_{name}.down.sql`.
 
 ### Lint
+
 ```bash
 cd apps/server && golangci-lint run ./...     # Go linting
 cd apps/web && pnpm lint                      # Frontend linting (ESLint)
@@ -78,6 +84,19 @@ cd apps/web && pnpm lint                      # Frontend linting (ESLint)
 - **Real-time**: WebSocket connection invalidates react-query caches on new email events
 - **Routing**: react-router with nested layouts under `routes/mail/` and `routes/settings/`
 - **API calls**: All go through `services/api.ts` which handles JWT interceptor and token refresh
+
+## Frontend Docs Rule
+
+For frontend work in `apps/web`, always use the documentation MCP when you need library or API documentation, setup guidance, version-specific usage, or implementation details for:
+
+- React
+- React Router
+- Tailwind CSS
+- Zustand
+- TanStack Query
+- TipTap
+
+Prefer repo patterns first. Use docs MCP to confirm current APIs and avoid stale assumptions.
 
 ## Environment
 
