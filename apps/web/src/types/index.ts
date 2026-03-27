@@ -3,6 +3,20 @@ export interface EmailAddress {
   email: string;
 }
 
+export interface Attachment {
+  id: string;
+  filename: string;
+  contentType: string;
+  size: number; // bytes
+  contentId?: string; // for inline images (cid: references)
+}
+
+export interface EmailBody {
+  plain: string;
+  html: string;
+  attachments?: Attachment[];
+}
+
 export interface Email {
   id: string;
   from: EmailAddress;
@@ -15,6 +29,7 @@ export interface Email {
   labels: string[];
   hasAttachment: boolean;
   threadId: string;
+  body: EmailBody;
 }
 
 export interface Folder {
