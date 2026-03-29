@@ -1,3 +1,6 @@
+export type AppPage = "email" | "calendar";
+export type FolderKey = "inbox" | "starred" | "sent" | "draft" | "done";
+
 export interface EmailAddress {
   name: string;
   email: string;
