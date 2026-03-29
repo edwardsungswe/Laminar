@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { Search, X } from "lucide-react";
-import type { AppPage, FolderKey } from "@/types";
+import type { AppPage, FolderKey, StorageSection } from "@/types";
 import { MOCK_EMAILS, getEmailsByFolder } from "@/data/emails";
 import { getWeekDates, formatWeekLabel } from "@/data/events";
 import type { CalendarEvent } from "@/data/events";
@@ -12,6 +12,13 @@ import ComposePanel from "@/components/ComposePanel";
 import CalendarWeekView from "@/components/CalendarWeekView";
 import CalendarEventDetail from "@/components/CalendarEventDetail";
 import AppPickerModal from "@/components/AppPickerModal";
+import StorageView from "@/components/StorageView";
+import UploadModal from "@/components/UploadModal";
+import DeleteConfirmDialog from "@/components/DeleteConfirmDialog";
+import CompressDialog from "@/components/CompressDialog";
+import ConvertDialog from "@/components/ConvertDialog";
+import DrivePickerModal from "@/components/DrivePickerModal";
+import { getFileById } from "@/data/files";
 
 function getMonday(d: Date): Date {
   const date = new Date(d);
@@ -37,6 +44,20 @@ export default function App() {
   const [currentWeekStart, setCurrentWeekStart] = useState<Date>(() => getMonday(new Date()));
   const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null);
   const [eventDetailOpen, setEventDetailOpen] = useState(false);
+
+  // Storage state
+  const [activeStorageSection, setActiveStorageSection] = useState<StorageSection>("all");
+  const [storageViewMode, setStorageViewMode] = useState<"grid" | "list">("grid");
+  const [currentFolderId, setCurrentFolderId] = useState<string | null>(null);
+  const [selectedFileId, setSelectedFileId] = useState<string | null>(null);
+  const [fileDetailOpen, setFileDetailOpen] = useState(false);
+  const [uploadModalOpen, setUploadModalOpen] = useState(false);
+  const [deleteConfirmFileId, setDeleteConfirmFileId] = useState<string | null>(null);
+  const [compressModalFileId, setCompressModalFileId] = useState<string | null>(null);
+  const [convertModalFileId, setConvertModalFileId] = useState<string | null>(null);
+  const [toastMessage, setToastMessage] = useState("");
+  const [drivePickerOpen, setDrivePickerOpen] = useState(false);
+  const [drivePickerMode, setDrivePickerMode] = useState<"save" | "attach">("save");
 
   // Derived email values
   const filteredEmails = useMemo(() => {
@@ -97,6 +118,13 @@ export default function App() {
         onFolderChange={setActiveFolder}
         onAppPickerOpen={() => setAppPickerOpen(true)}
         unreadCount={unreadCount}
+        activeStorageSection={activeStorageSection}
+        onStorageSectionChange={(section) => {
+          setActiveStorageSection(section);
+          setCurrentFolderId(null);
+          setSelectedFileId(null);
+          setFileDetailOpen(false);
+        }}
       />
 
       {/* Main content area */}
@@ -112,6 +140,10 @@ export default function App() {
           onPrevWeek={handlePrevWeek}
           onNextWeek={handleNextWeek}
           onToday={handleToday}
+          storageSection={activeStorageSection}
+          onUploadClick={() => setUploadModalOpen(true)}
+          storageViewMode={storageViewMode}
+          onToggleViewMode={() => setStorageViewMode((m) => m === "grid" ? "list" : "grid")}
         />
 
         <main className="flex-1 flex min-h-0 relative">
@@ -150,12 +182,25 @@ export default function App() {
               </div>
               {selectedEmail && !composeOpen && (
                 <div className="flex-1 bg-bg-white">
-                  <ReadingPane email={selectedEmail} onBack={() => setSelectedId(null)} />
+                  <ReadingPane
+                    email={selectedEmail}
+                    onBack={() => setSelectedId(null)}
+                    onSaveToDrive={() => {
+                      setDrivePickerMode("save");
+                      setDrivePickerOpen(true);
+                    }}
+                  />
                 </div>
               )}
               {composeOpen && (
                 <div className="flex-1">
-                  <ComposePanel onClose={() => setComposeOpen(false)} />
+                  <ComposePanel
+                    onClose={() => setComposeOpen(false)}
+                    onAttachFromDrive={() => {
+                      setDrivePickerMode("attach");
+                      setDrivePickerOpen(true);
+                    }}
+                  />
                 </div>
               )}
             </>
@@ -177,6 +222,36 @@ export default function App() {
               />
             </>
           )}
+
+          {activePage === "storage" && (
+            <StorageView
+              section={activeStorageSection}
+              viewMode={storageViewMode}
+              currentFolderId={currentFolderId}
+              onFolderOpen={(id) => {
+                setCurrentFolderId(id);
+                setSelectedFileId(null);
+                setFileDetailOpen(false);
+              }}
+              onNavigateUp={(id) => {
+                setCurrentFolderId(id);
+                setSelectedFileId(null);
+                setFileDetailOpen(false);
+              }}
+              selectedFileId={selectedFileId}
+              onFileSelect={setSelectedFileId}
+              onFileDetailOpen={() => setFileDetailOpen(true)}
+              fileDetailOpen={fileDetailOpen}
+              onFileDetailClose={() => setFileDetailOpen(false)}
+              onUploadOpen={() => setUploadModalOpen(true)}
+              onDeleteFile={(id) => setDeleteConfirmFileId(id)}
+              onCompressFile={(id) => setCompressModalFileId(id)}
+              onConvertFile={(id) => setConvertModalFileId(id)}
+              onFavoriteToggle={() => setToastMessage("Favorites updated")}
+              toastMessage={toastMessage}
+              onToastDismiss={() => setToastMessage("")}
+            />
+          )}
         </main>
       </div>
 
@@ -189,6 +264,52 @@ export default function App() {
           setAppPickerOpen(false);
         }}
         onClose={() => setAppPickerOpen(false)}
+      />
+
+      {uploadModalOpen && <UploadModal onClose={() => setUploadModalOpen(false)} />}
+
+      {deleteConfirmFileId && (
+        <DeleteConfirmDialog
+          fileName={getFileById(deleteConfirmFileId)?.name ?? ""}
+          onConfirm={() => {
+            setDeleteConfirmFileId(null);
+            setToastMessage("File moved to trash");
+          }}
+          onCancel={() => setDeleteConfirmFileId(null)}
+        />
+      )}
+
+      {compressModalFileId && (
+        <CompressDialog
+          fileName={getFileById(compressModalFileId)?.name ?? ""}
+          onClose={() => {
+            setCompressModalFileId(null);
+            setToastMessage("File compressed");
+          }}
+        />
+      )}
+
+      {convertModalFileId && (() => {
+        const f = getFileById(convertModalFileId);
+        return f ? (
+          <ConvertDialog
+            fileName={f.name}
+            fileType={f.type}
+            onClose={() => {
+              setConvertModalFileId(null);
+              setToastMessage("File converted");
+            }}
+          />
+        ) : null;
+      })()}
+
+      <DrivePickerModal
+        mode={drivePickerMode}
+        isOpen={drivePickerOpen}
+        onClose={() => {
+          setDrivePickerOpen(false);
+          setToastMessage(drivePickerMode === "save" ? "Saved to Drive" : "File attached");
+        }}
       />
     </div>
   );

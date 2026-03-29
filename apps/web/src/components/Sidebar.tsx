@@ -1,5 +1,5 @@
-import { Inbox, Send, Star, FileText, CheckCircle, CalendarDays, Calendar, Clock, LayoutGrid } from "lucide-react";
-import type { AppPage, FolderKey } from "@/types";
+import { Inbox, Send, Star, FileText, CheckCircle, CalendarDays, Calendar, Clock, LayoutGrid, FolderOpen, Users, Trash2 } from "lucide-react";
+import type { AppPage, FolderKey, StorageSection } from "@/types";
 import SidebarNavItem from "./SidebarNavItem";
 
 interface SidebarProps {
@@ -8,7 +8,17 @@ interface SidebarProps {
   onFolderChange: (folder: FolderKey) => void;
   onAppPickerOpen: () => void;
   unreadCount: number;
+  activeStorageSection?: StorageSection;
+  onStorageSectionChange?: (section: StorageSection) => void;
 }
+
+const storageNav: { value: StorageSection; label: string; icon: typeof FolderOpen }[] = [
+  { value: "all", label: "All Files", icon: FolderOpen },
+  { value: "favorites", label: "Favorites", icon: Star },
+  { value: "recent", label: "Recent", icon: Clock },
+  { value: "shared", label: "Shared", icon: Users },
+  { value: "trash", label: "Trash", icon: Trash2 },
+];
 
 const emailNav: { value: FolderKey; label: string; icon: typeof Inbox }[] = [
   { value: "inbox", label: "Inbox", icon: Inbox },
@@ -24,6 +34,8 @@ export default function Sidebar({
   onFolderChange,
   onAppPickerOpen,
   unreadCount,
+  activeStorageSection,
+  onStorageSectionChange,
 }: SidebarProps) {
   return (
     <aside className="w-[220px] h-full bg-bg-white border-r border-divider flex flex-col shrink-0">
@@ -71,6 +83,16 @@ export default function Sidebar({
             />
           </>
         )}
+        {activePage === "storage" &&
+          storageNav.map((item) => (
+            <SidebarNavItem
+              key={item.value}
+              icon={item.icon}
+              label={item.label}
+              isActive={activeStorageSection === item.value}
+              onClick={() => onStorageSectionChange?.(item.value)}
+            />
+          ))}
       </nav>
 
       {/* Spacer */}

@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { Mail, CalendarDays, X } from "lucide-react";
+import { Mail, CalendarDays, HardDrive, X } from "lucide-react";
 import type { AppPage } from "@/types";
 
 interface AppPickerModalProps {
@@ -12,6 +12,7 @@ interface AppPickerModalProps {
 const apps: { page: AppPage; label: string; icon: typeof Mail; description: string }[] = [
   { page: "email", label: "Email", icon: Mail, description: "Messages and conversations" },
   { page: "calendar", label: "Calendar", icon: CalendarDays, description: "Events and schedule" },
+  { page: "storage" as AppPage, label: "Drive", icon: HardDrive, description: "Files and documents" },
 ];
 
 export default function AppPickerModal({

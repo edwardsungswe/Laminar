@@ -1,5 +1,18 @@
-export type AppPage = "email" | "calendar";
+export type AppPage = "email" | "calendar" | "storage";
 export type FolderKey = "inbox" | "starred" | "sent" | "draft" | "done";
+
+export type StorageSection = "all" | "favorites" | "recent" | "shared" | "trash";
+
+export type FileType =
+  | "folder"
+  | "document"
+  | "image"
+  | "spreadsheet"
+  | "presentation"
+  | "pdf"
+  | "video"
+  | "audio"
+  | "archive";
 
 export interface EmailAddress {
   name: string;

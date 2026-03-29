@@ -1,5 +1,13 @@
-import { ChevronLeft, ChevronRight, Plus, PenSquare } from "lucide-react";
-import type { AppPage, FolderKey } from "@/types";
+import { ChevronLeft, ChevronRight, Plus, PenSquare, Upload, LayoutGrid, List } from "lucide-react";
+import type { AppPage, FolderKey, StorageSection } from "@/types";
+
+const storageSectionLabels: Record<StorageSection, string> = {
+  all: "All Files",
+  favorites: "Favorites",
+  recent: "Recent",
+  shared: "Shared",
+  trash: "Trash",
+};
 
 const folderLabels: Record<FolderKey, string> = {
   inbox: "Inbox",
@@ -17,6 +25,10 @@ interface TopBarProps {
   onPrevWeek?: () => void;
   onNextWeek?: () => void;
   onToday?: () => void;
+  storageSection?: StorageSection;
+  onUploadClick?: () => void;
+  storageViewMode?: "grid" | "list";
+  onToggleViewMode?: () => void;
 }
 
 export default function TopBar({
@@ -27,6 +39,10 @@ export default function TopBar({
   onPrevWeek,
   onNextWeek,
   onToday,
+  storageSection,
+  onUploadClick,
+  storageViewMode,
+  onToggleViewMode,
 }: TopBarProps) {
   return (
     <header className="h-14 border-b border-divider flex items-center px-6 gap-4 bg-bg-white shrink-0">
@@ -84,6 +100,48 @@ export default function TopBar({
           >
             <Plus className="w-4 h-4" strokeWidth={1.5} />
             New Event
+          </button>
+        </>
+      )}
+
+      {activePage === "storage" && (
+        <>
+          <h1 className="text-base font-semibold text-text-primary">
+            {storageSection ? storageSectionLabels[storageSection] : "All Files"}
+          </h1>
+
+          <div className="flex-1" />
+
+          {/* View mode toggle */}
+          <div className="bg-surface rounded-lg p-0.5 flex items-center">
+            <button
+              onClick={storageViewMode !== "grid" ? onToggleViewMode : undefined}
+              className={`w-8 h-8 rounded-md flex items-center justify-center transition-colors duration-100 cursor-pointer ${
+                storageViewMode === "grid"
+                  ? "bg-bg-white shadow-sm text-text-primary"
+                  : "text-text-tertiary hover:text-text-secondary"
+              }`}
+            >
+              <LayoutGrid className="w-4 h-4" strokeWidth={1.5} />
+            </button>
+            <button
+              onClick={storageViewMode !== "list" ? onToggleViewMode : undefined}
+              className={`w-8 h-8 rounded-md flex items-center justify-center transition-colors duration-100 cursor-pointer ${
+                storageViewMode === "list"
+                  ? "bg-bg-white shadow-sm text-text-primary"
+                  : "text-text-tertiary hover:text-text-secondary"
+              }`}
+            >
+              <List className="w-4 h-4" strokeWidth={1.5} />
+            </button>
+          </div>
+
+          <button
+            onClick={onUploadClick}
+            className="h-9 px-4 bg-accent hover:bg-accent-hover text-white text-sm font-medium rounded-lg transition-colors duration-100 flex items-center gap-2 cursor-pointer"
+          >
+            <Upload className="w-4 h-4" strokeWidth={1.5} />
+            Upload
           </button>
         </>
       )}

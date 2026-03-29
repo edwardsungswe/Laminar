@@ -14,6 +14,7 @@ import {
   BellOff,
   ExternalLink,
   EyeOff,
+  HardDrive,
 } from "lucide-react";
 import type { Email } from "@/types";
 import { getInitials, formatEmailDate } from "@/data/emails";
@@ -22,6 +23,7 @@ import EmptyState from "./EmptyState";
 interface ReadingPaneProps {
   email: Email | null;
   onBack?: () => void;
+  onSaveToDrive?: () => void;
 }
 
 function ActionButton({
@@ -41,7 +43,7 @@ function ActionButton({
   );
 }
 
-function MoreMenu() {
+function MoreMenu({ onSaveToDrive }: { onSaveToDrive?: () => void }) {
   const [open, setOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -83,6 +85,17 @@ function MoreMenu() {
 
       {open && (
         <div className="absolute right-0 top-11 bg-bg-white rounded-lg shadow-lg border border-divider py-1 w-[200px] z-30">
+          <button
+            onClick={() => {
+              setOpen(false);
+              onSaveToDrive?.();
+            }}
+            className="w-full px-3 py-2 flex items-center gap-2.5 text-sm text-text-secondary hover:bg-surface/50 hover:text-text-primary transition-colors duration-100 cursor-pointer"
+          >
+            <HardDrive className="w-4 h-4 shrink-0" strokeWidth={1.5} />
+            Save to Drive
+          </button>
+          <div className="border-t border-divider my-1" />
           {items.map((item) => (
             <button
               key={item.label}
@@ -99,7 +112,7 @@ function MoreMenu() {
   );
 }
 
-export default function ReadingPane({ email, onBack }: ReadingPaneProps) {
+export default function ReadingPane({ email, onBack, onSaveToDrive }: ReadingPaneProps) {
   if (!email) return <EmptyState />;
 
   const avatar = getInitials(email.from.name);
@@ -135,7 +148,7 @@ export default function ReadingPane({ email, onBack }: ReadingPaneProps) {
 
           <div className="flex-1" />
 
-          <MoreMenu />
+          <MoreMenu onSaveToDrive={onSaveToDrive} />
         </div>
 
         {/* Subject */}

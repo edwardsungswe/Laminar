@@ -1,10 +1,11 @@
-import { ArrowLeft, Send, Trash2 } from "lucide-react";
+import { ArrowLeft, Send, Trash2, HardDrive, Paperclip } from "lucide-react";
 
 interface ComposePanelProps {
   onClose: () => void;
+  onAttachFromDrive?: () => void;
 }
 
-export default function ComposePanel({ onClose }: ComposePanelProps) {
+export default function ComposePanel({ onClose, onAttachFromDrive }: ComposePanelProps) {
   return (
     <div className="h-full overflow-y-auto bg-bg-white">
       <div className="px-10 py-8">
@@ -66,6 +67,23 @@ export default function ComposePanel({ onClose }: ComposePanelProps) {
           placeholder="Write your message..."
           className="w-full bg-transparent text-[15px] text-text-primary placeholder:text-text-tertiary leading-[1.7] resize-none focus:outline-none min-h-[400px]"
         />
+
+        {/* Attachment toolbar */}
+        <div className="border-t border-divider pt-4 mt-auto flex items-center gap-2">
+          <button
+            onClick={onAttachFromDrive}
+            className="h-8 px-3 rounded-lg flex items-center gap-2 text-sm text-text-secondary hover:text-text-primary hover:bg-surface transition-colors duration-100 cursor-pointer"
+          >
+            <HardDrive className="w-4 h-4" strokeWidth={1.5} />
+            Attach from Drive
+          </button>
+          <button
+            className="h-8 px-3 rounded-lg flex items-center gap-2 text-sm text-text-secondary hover:text-text-primary hover:bg-surface transition-colors duration-100 cursor-pointer"
+          >
+            <Paperclip className="w-4 h-4" strokeWidth={1.5} />
+            Attach file
+          </button>
+        </div>
       </div>
     </div>
   );
