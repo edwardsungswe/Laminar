@@ -1,5 +1,5 @@
-import { Inbox, Send, Star, FileText, CheckCircle, CalendarDays, Calendar, Clock, LayoutGrid, FolderOpen, Users, Trash2 } from "lucide-react";
-import type { AppPage, FolderKey, StorageSection } from "@/types";
+import { Inbox, Send, Star, FileText, CheckCircle, CalendarDays, Calendar, Clock, LayoutGrid, FolderOpen, Users, Trash2, User, Palette, Bell, Settings, Shield } from "lucide-react";
+import type { AppPage, FolderKey, StorageSection, SettingsTab } from "@/types";
 import SidebarNavItem from "./SidebarNavItem";
 
 interface SidebarProps {
@@ -10,7 +10,18 @@ interface SidebarProps {
   unreadCount: number;
   activeStorageSection?: StorageSection;
   onStorageSectionChange?: (section: StorageSection) => void;
+  onProfileClick: () => void;
+  activeSettingsTab?: SettingsTab;
+  onSettingsTabChange?: (tab: SettingsTab) => void;
 }
+
+const settingsNav: { value: SettingsTab; label: string; icon: typeof User }[] = [
+  { value: "profile", label: "Profile", icon: User },
+  { value: "theme", label: "Theme", icon: Palette },
+  { value: "notifications", label: "Notifications", icon: Bell },
+  { value: "account", label: "Account", icon: Settings },
+  { value: "security", label: "Security", icon: Shield },
+];
 
 const storageNav: { value: StorageSection; label: string; icon: typeof FolderOpen }[] = [
   { value: "all", label: "All Files", icon: FolderOpen },
@@ -36,6 +47,9 @@ export default function Sidebar({
   unreadCount,
   activeStorageSection,
   onStorageSectionChange,
+  onProfileClick,
+  activeSettingsTab,
+  onSettingsTabChange,
 }: SidebarProps) {
   return (
     <aside className="w-[220px] h-full bg-bg-white border-r border-divider flex flex-col shrink-0">
@@ -93,6 +107,16 @@ export default function Sidebar({
               onClick={() => onStorageSectionChange?.(item.value)}
             />
           ))}
+        {activePage === "profile" &&
+          settingsNav.map((item) => (
+            <SidebarNavItem
+              key={item.value}
+              icon={item.icon}
+              label={item.label}
+              isActive={activeSettingsTab === item.value}
+              onClick={() => onSettingsTabChange?.(item.value)}
+            />
+          ))}
       </nav>
 
       {/* Spacer */}
@@ -110,12 +134,15 @@ export default function Sidebar({
 
         <div className="border-t border-divider my-2 mx-2" />
 
-        <div className="flex items-center gap-3 px-4 py-2">
+        <button
+          onClick={onProfileClick}
+          className="w-full flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-surface/50 transition-colors duration-100 cursor-pointer"
+        >
           <div className="w-8 h-8 rounded-full bg-surface flex items-center justify-center text-[11px] font-medium text-text-secondary shrink-0 select-none">
             You
           </div>
           <span className="text-xs text-text-tertiary truncate">you@laminar.design</span>
-        </div>
+        </button>
       </div>
     </aside>
   );

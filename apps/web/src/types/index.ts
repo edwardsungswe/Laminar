@@ -1,4 +1,5 @@
-export type AppPage = "email" | "calendar" | "storage";
+export type AppPage = "email" | "calendar" | "storage" | "profile";
+export type SettingsTab = "profile" | "theme" | "notifications" | "account" | "security";
 export type FolderKey = "inbox" | "starred" | "sent" | "draft" | "done";
 
 export type StorageSection = "all" | "favorites" | "recent" | "shared" | "trash";

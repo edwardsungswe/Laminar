@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { Search, X } from "lucide-react";
-import type { AppPage, FolderKey, StorageSection } from "@/types";
+import type { AppPage, FolderKey, StorageSection, SettingsTab } from "@/types";
 import { MOCK_EMAILS, getEmailsByFolder } from "@/data/emails";
 import { getWeekDates, formatWeekLabel } from "@/data/events";
 import type { CalendarEvent } from "@/data/events";
@@ -18,6 +18,7 @@ import DeleteConfirmDialog from "@/components/DeleteConfirmDialog";
 import CompressDialog from "@/components/CompressDialog";
 import ConvertDialog from "@/components/ConvertDialog";
 import DrivePickerModal from "@/components/DrivePickerModal";
+import ProfileView from "@/components/profile/ProfileView";
 import { getFileById } from "@/data/files";
 
 function getMonday(d: Date): Date {
@@ -58,6 +59,9 @@ export default function App() {
   const [toastMessage, setToastMessage] = useState("");
   const [drivePickerOpen, setDrivePickerOpen] = useState(false);
   const [drivePickerMode, setDrivePickerMode] = useState<"save" | "attach">("save");
+
+  // Settings state
+  const [activeSettingsTab, setActiveSettingsTab] = useState<SettingsTab>("profile");
 
   // Derived email values
   const filteredEmails = useMemo(() => {
@@ -125,6 +129,9 @@ export default function App() {
           setSelectedFileId(null);
           setFileDetailOpen(false);
         }}
+        onProfileClick={() => setActivePage("profile")}
+        activeSettingsTab={activeSettingsTab}
+        onSettingsTabChange={setActiveSettingsTab}
       />
 
       {/* Main content area */}
@@ -144,6 +151,7 @@ export default function App() {
           onUploadClick={() => setUploadModalOpen(true)}
           storageViewMode={storageViewMode}
           onToggleViewMode={() => setStorageViewMode((m) => m === "grid" ? "list" : "grid")}
+          settingsTab={activePage === "profile" ? activeSettingsTab : undefined}
         />
 
         <main className="flex-1 flex min-h-0 relative">
@@ -221,6 +229,10 @@ export default function App() {
                 onClose={() => setEventDetailOpen(false)}
               />
             </>
+          )}
+
+          {activePage === "profile" && (
+            <ProfileView activeTab={activeSettingsTab} />
           )}
 
           {activePage === "storage" && (

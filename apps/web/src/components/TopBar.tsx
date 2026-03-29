@@ -1,5 +1,13 @@
 import { ChevronLeft, ChevronRight, Plus, PenSquare, Upload, LayoutGrid, List } from "lucide-react";
-import type { AppPage, FolderKey, StorageSection } from "@/types";
+import type { AppPage, FolderKey, StorageSection, SettingsTab } from "@/types";
+
+const settingsTabLabels: Record<SettingsTab, string> = {
+  profile: "Profile",
+  theme: "Theme",
+  notifications: "Notifications",
+  account: "Account",
+  security: "Security",
+};
 
 const storageSectionLabels: Record<StorageSection, string> = {
   all: "All Files",
@@ -29,6 +37,7 @@ interface TopBarProps {
   onUploadClick?: () => void;
   storageViewMode?: "grid" | "list";
   onToggleViewMode?: () => void;
+  settingsTab?: SettingsTab;
 }
 
 export default function TopBar({
@@ -43,6 +52,7 @@ export default function TopBar({
   onUploadClick,
   storageViewMode,
   onToggleViewMode,
+  settingsTab,
 }: TopBarProps) {
   return (
     <header className="h-14 border-b border-divider flex items-center px-6 gap-4 bg-bg-white shrink-0">
@@ -101,6 +111,15 @@ export default function TopBar({
             <Plus className="w-4 h-4" strokeWidth={1.5} />
             New Event
           </button>
+        </>
+      )}
+
+      {activePage === "profile" && (
+        <>
+          <h1 className="text-base font-semibold text-text-primary">
+            {settingsTab ? settingsTabLabels[settingsTab] : "Profile"}
+          </h1>
+          <div className="flex-1" />
         </>
       )}
 
