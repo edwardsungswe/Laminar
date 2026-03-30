@@ -2,6 +2,19 @@ export type AppPage = "email" | "calendar" | "storage" | "profile";
 export type SettingsTab = "profile" | "theme" | "notifications" | "account" | "security";
 export type FolderKey = "inbox" | "starred" | "sent" | "draft" | "done";
 
+export type EmailSubView = "mail" | "blockTemplates" | "blockBuilder";
+
+export interface BlockTemplate {
+  id: string;
+  name: string;
+  category: string;
+  description: string;
+  preview: string;
+  body: string;
+  htmlBody: string;
+  icon: string;
+}
+
 export type StorageSection = "all" | "favorites" | "recent" | "shared" | "trash";
 
 export type FileType =

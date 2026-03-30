@@ -1,5 +1,6 @@
-import { Inbox, Send, Star, FileText, CheckCircle, CalendarDays, Calendar, Clock, LayoutGrid, FolderOpen, Users, Trash2, User, Palette, Bell, Settings, Shield } from "lucide-react";
-import type { AppPage, FolderKey, StorageSection, SettingsTab } from "@/types";
+import { useState } from "react";
+import { Inbox, Send, Star, FileText, CheckCircle, CalendarDays, Calendar, Clock, LayoutGrid, FolderOpen, Users, Trash2, User, Palette, Bell, Settings, Shield, ChevronRight, LayoutTemplate, Hammer } from "lucide-react";
+import type { AppPage, FolderKey, StorageSection, SettingsTab, EmailSubView } from "@/types";
 import SidebarNavItem from "./SidebarNavItem";
 
 interface SidebarProps {
@@ -13,6 +14,9 @@ interface SidebarProps {
   onProfileClick: () => void;
   activeSettingsTab?: SettingsTab;
   onSettingsTabChange?: (tab: SettingsTab) => void;
+  activeEmailSubView?: EmailSubView;
+  onEmailSubViewChange?: (view: EmailSubView) => void;
+  onCreateNewBlock?: () => void;
 }
 
 const settingsNav: { value: SettingsTab; label: string; icon: typeof User }[] = [
@@ -50,7 +54,12 @@ export default function Sidebar({
   onProfileClick,
   activeSettingsTab,
   onSettingsTabChange,
+  activeEmailSubView,
+  onEmailSubViewChange,
+  onCreateNewBlock,
 }: SidebarProps) {
+  const [blocksExpanded, setBlocksExpanded] = useState(false);
+
   return (
     <aside className="w-[220px] h-full bg-bg-white border-r border-divider flex flex-col shrink-0">
       {/* Wordmark */}
@@ -62,17 +71,57 @@ export default function Sidebar({
 
       {/* Page-specific nav */}
       <nav className="px-3 flex flex-col gap-0.5">
-        {activePage === "email" &&
-          emailNav.map((item) => (
-            <SidebarNavItem
-              key={item.value}
-              icon={item.icon}
-              label={item.label}
-              isActive={activeFolder === item.value}
-              onClick={() => onFolderChange(item.value)}
-              badge={item.value === "inbox" ? unreadCount : undefined}
-            />
-          ))}
+        {activePage === "email" && (
+          <>
+            {emailNav.map((item) => (
+              <SidebarNavItem
+                key={item.value}
+                icon={item.icon}
+                label={item.label}
+                isActive={activeEmailSubView === "mail" && activeFolder === item.value}
+                onClick={() => {
+                  onFolderChange(item.value);
+                  onEmailSubViewChange?.("mail");
+                }}
+                badge={item.value === "inbox" ? unreadCount : undefined}
+              />
+            ))}
+
+            {/* Blocks divider and section */}
+            <div className="border-t border-divider my-2 mx-2" />
+
+            <button
+              onClick={() => setBlocksExpanded((prev) => !prev)}
+              className="w-full flex items-center gap-3 px-4 py-2 rounded-lg text-xs font-semibold uppercase tracking-wider text-text-tertiary hover:text-text-secondary transition-colors duration-100 cursor-pointer"
+            >
+              <ChevronRight
+                className={`w-3.5 h-3.5 shrink-0 transition-transform duration-150 ${blocksExpanded ? "rotate-90" : ""}`}
+                strokeWidth={2}
+              />
+              <span>Blocks</span>
+            </button>
+
+            {blocksExpanded && (
+              <div className="pl-2 flex flex-col gap-0.5">
+                <SidebarNavItem
+                  icon={LayoutTemplate}
+                  label="Block Templates"
+                  isActive={activeEmailSubView === "blockTemplates"}
+                  onClick={() => onEmailSubViewChange?.("blockTemplates")}
+                />
+                <SidebarNavItem
+                  icon={Hammer}
+                  label="Block Builder"
+                  isActive={activeEmailSubView === "blockBuilder"}
+                  onClick={() => {
+                    onCreateNewBlock?.();
+                    onEmailSubViewChange?.("blockBuilder");
+                  }}
+                />
+              </div>
+            )}
+          </>
+        )}
         {activePage === "calendar" && (
           <>
             <SidebarNavItem

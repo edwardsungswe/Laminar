@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { Search, X } from "lucide-react";
-import type { AppPage, FolderKey, StorageSection, SettingsTab } from "@/types";
+import type { AppPage, FolderKey, StorageSection, SettingsTab, EmailSubView } from "@/types";
 import { MOCK_EMAILS, getEmailsByFolder } from "@/data/emails";
 import { getWeekDates, formatWeekLabel } from "@/data/events";
 import type { CalendarEvent } from "@/data/events";
@@ -19,6 +19,9 @@ import CompressDialog from "@/components/CompressDialog";
 import ConvertDialog from "@/components/ConvertDialog";
 import DrivePickerModal from "@/components/DrivePickerModal";
 import ProfileView from "@/components/profile/ProfileView";
+import BlockTemplatesView from "@/components/blocks/BlockTemplatesView";
+import BlockBuilder from "@/components/blocks/BlockBuilder";
+import { BlockTemplateProvider } from "@/stores/BlockTemplateContext";
 import { getFileById } from "@/data/files";
 
 function getMonday(d: Date): Date {
@@ -40,6 +43,8 @@ export default function App() {
   const [composeOpen, setComposeOpen] = useState(false);
   const [activeFolder, setActiveFolder] = useState<FolderKey>("inbox");
   const [searchQuery, setSearchQuery] = useState("");
+  const [activeEmailSubView, setActiveEmailSubView] = useState<EmailSubView>("mail");
+  const [editingBlockId, setEditingBlockId] = useState<string | null>(null);
 
   // Calendar state
   const [currentWeekStart, setCurrentWeekStart] = useState<Date>(() => getMonday(new Date()));
@@ -114,12 +119,16 @@ export default function App() {
   };
 
   return (
+    <BlockTemplateProvider>
     <div className="h-screen flex overflow-hidden">
       {/* Sidebar */}
       <Sidebar
         activePage={activePage}
         activeFolder={activeFolder}
-        onFolderChange={setActiveFolder}
+        onFolderChange={(folder) => {
+          setActiveFolder(folder);
+          setActiveEmailSubView("mail");
+        }}
         onAppPickerOpen={() => setAppPickerOpen(true)}
         unreadCount={unreadCount}
         activeStorageSection={activeStorageSection}
@@ -132,6 +141,9 @@ export default function App() {
         onProfileClick={() => setActivePage("profile")}
         activeSettingsTab={activeSettingsTab}
         onSettingsTabChange={setActiveSettingsTab}
+        activeEmailSubView={activeEmailSubView}
+        onEmailSubViewChange={setActiveEmailSubView}
+        onCreateNewBlock={() => setEditingBlockId(null)}
       />
 
       {/* Main content area */}
@@ -155,7 +167,7 @@ export default function App() {
         />
 
         <main className="flex-1 flex min-h-0 relative">
-          {activePage === "email" && (
+          {activePage === "email" && activeEmailSubView === "mail" && (
             <>
               <div className={`bg-bg shrink-0 flex flex-col ${selectedEmail || composeOpen ? "w-[380px] border-r border-divider" : "flex-1"}`}>
                 {/* Search bar at top of email list */}
@@ -212,6 +224,29 @@ export default function App() {
                 </div>
               )}
             </>
+          )}
+
+          {activePage === "email" && activeEmailSubView === "blockTemplates" && (
+            <BlockTemplatesView
+              onEditTemplate={(id) => {
+                setEditingBlockId(id);
+                setActiveEmailSubView("blockBuilder");
+              }}
+              onCreateNew={() => {
+                setEditingBlockId(null);
+                setActiveEmailSubView("blockBuilder");
+              }}
+            />
+          )}
+
+          {activePage === "email" && activeEmailSubView === "blockBuilder" && (
+            <BlockBuilder
+              templateId={editingBlockId}
+              onBack={() => {
+                setEditingBlockId(null);
+                setActiveEmailSubView("blockTemplates");
+              }}
+            />
           )}
 
           {activePage === "calendar" && (
@@ -324,5 +359,6 @@ export default function App() {
         }}
       />
     </div>
+    </BlockTemplateProvider>
   );
 }
