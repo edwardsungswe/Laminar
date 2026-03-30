@@ -60,7 +60,8 @@ export default function ComposePanel({ onClose, onAttachFromDrive }: ComposePane
   const handleBlockSelect = useCallback(
     (template: BlockTemplate) => {
       if (!editor) return;
-      editor.commands.setContent(template.htmlBody || template.body);
+      const html = template.htmlBody || template.body;
+      editor.chain().focus().insertContent(html).run();
       setBlockPickerOpen(false);
     },
     [editor]

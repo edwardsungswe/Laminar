@@ -148,23 +148,25 @@ export default function App() {
 
       {/* Main content area */}
       <div className="flex-1 flex flex-col min-w-0">
-        <TopBar
-          activePage={activePage}
-          activeFolder={activeFolder}
-          onComposeClick={() => {
-            setComposeOpen(true);
-            setSelectedId(null);
-          }}
-          weekLabel={weekLabel}
-          onPrevWeek={handlePrevWeek}
-          onNextWeek={handleNextWeek}
-          onToday={handleToday}
-          storageSection={activeStorageSection}
-          onUploadClick={() => setUploadModalOpen(true)}
-          storageViewMode={storageViewMode}
-          onToggleViewMode={() => setStorageViewMode((m) => m === "grid" ? "list" : "grid")}
-          settingsTab={activePage === "profile" ? activeSettingsTab : undefined}
-        />
+        {!(activePage === "email" && (activeEmailSubView === "blockTemplates" || activeEmailSubView === "blockBuilder")) && (
+          <TopBar
+            activePage={activePage}
+            activeFolder={activeFolder}
+            onComposeClick={() => {
+              setComposeOpen(true);
+              setSelectedId(null);
+            }}
+            weekLabel={weekLabel}
+            onPrevWeek={handlePrevWeek}
+            onNextWeek={handleNextWeek}
+            onToday={handleToday}
+            storageSection={activeStorageSection}
+            onUploadClick={() => setUploadModalOpen(true)}
+            storageViewMode={storageViewMode}
+            onToggleViewMode={() => setStorageViewMode((m) => m === "grid" ? "list" : "grid")}
+            settingsTab={activePage === "profile" ? activeSettingsTab : undefined}
+          />
+        )}
 
         <main className="flex-1 flex min-h-0 relative">
           {activePage === "email" && activeEmailSubView === "mail" && (
