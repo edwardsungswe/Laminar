@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Inbox, Send, Star, FileText, CheckCircle, CalendarDays, Calendar, Clock, LayoutGrid, FolderOpen, Users, Trash2, User, Palette, Bell, Settings, Shield, ChevronRight, LayoutTemplate, Hammer } from "lucide-react";
+import { Inbox, Send, Star, FileText, CheckCircle, CalendarDays, Calendar, Clock, LayoutGrid, FolderOpen, Users, Trash2, User, Palette, Bell, Settings, Shield, ChevronRight, LayoutTemplate, Hammer, LogOut } from "lucide-react";
 import type { AppPage, FolderKey, StorageSection, SettingsTab, EmailSubView } from "@/types";
 import SidebarNavItem from "./SidebarNavItem";
 
@@ -17,6 +17,7 @@ interface SidebarProps {
   activeEmailSubView?: EmailSubView;
   onEmailSubViewChange?: (view: EmailSubView) => void;
   onCreateNewBlock?: () => void;
+  onLogout?: () => void;
 }
 
 const settingsNav: { value: SettingsTab; label: string; icon: typeof User }[] = [
@@ -57,6 +58,7 @@ export default function Sidebar({
   activeEmailSubView,
   onEmailSubViewChange,
   onCreateNewBlock,
+  onLogout,
 }: SidebarProps) {
   const [blocksExpanded, setBlocksExpanded] = useState(false);
 
@@ -183,15 +185,24 @@ export default function Sidebar({
 
         <div className="border-t border-divider my-2 mx-2" />
 
-        <button
-          onClick={onProfileClick}
-          className="w-full flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-surface/50 transition-colors duration-100 cursor-pointer"
-        >
-          <div className="w-8 h-8 rounded-full bg-surface flex items-center justify-center text-[11px] font-medium text-text-secondary shrink-0 select-none">
-            You
-          </div>
-          <span className="text-xs text-text-tertiary truncate">you@laminar.design</span>
-        </button>
+        <div className="flex items-center gap-1">
+          <button
+            onClick={onProfileClick}
+            className="flex-1 flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-surface/50 transition-colors duration-100 cursor-pointer min-w-0"
+          >
+            <div className="w-8 h-8 rounded-full bg-surface flex items-center justify-center text-[11px] font-medium text-text-secondary shrink-0 select-none">
+              You
+            </div>
+            <span className="text-xs text-text-tertiary truncate">you@laminar.design</span>
+          </button>
+          <button
+            onClick={onLogout}
+            className="p-2 rounded-lg text-text-tertiary hover:text-text-primary hover:bg-surface/50 transition-colors duration-100 cursor-pointer shrink-0"
+            title="Sign out"
+          >
+            <LogOut className="w-4 h-4" strokeWidth={1.5} />
+          </button>
+        </div>
       </div>
     </aside>
   );
