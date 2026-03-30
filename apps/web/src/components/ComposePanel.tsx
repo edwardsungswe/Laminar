@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
-import { ArrowLeft, Send, Trash2, HardDrive, Paperclip, LayoutTemplate } from "lucide-react";
+import { ArrowLeft, Send, Trash2, HardDrive, Paperclip, LayoutTemplate, X } from "lucide-react";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Placeholder from "@tiptap/extension-placeholder";
@@ -9,11 +9,12 @@ import Variable from "@/lib/tiptap/variable-extension";
 import ComposeToolbar from "./compose/ComposeToolbar";
 import VariableFillDialog from "./compose/VariableFillDialog";
 import BlockPickerPanel from "./blocks/BlockPickerPanel";
-import type { BlockTemplate } from "@/types";
+import type { BlockTemplate, ComposeContext } from "@/types";
 
 interface ComposePanelProps {
   onClose: () => void;
   onAttachFromDrive?: () => void;
+  composeContext?: ComposeContext | null;
 }
 
 function hasVariableNodes(editor: ReturnType<typeof useEditor>): boolean {
@@ -25,10 +26,14 @@ function hasVariableNodes(editor: ReturnType<typeof useEditor>): boolean {
   return found;
 }
 
-export default function ComposePanel({ onClose, onAttachFromDrive }: ComposePanelProps) {
+export default function ComposePanel({ onClose, onAttachFromDrive, composeContext }: ComposePanelProps) {
   const [blockPickerOpen, setBlockPickerOpen] = useState(false);
   const [variableDialogOpen, setVariableDialogOpen] = useState(false);
+  const [toField, setToField] = useState("");
+  const [subjectField, setSubjectField] = useState("");
+  const [attachedFiles, setAttachedFiles] = useState<string[]>([]);
   const pickerRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const editor = useEditor({
     extensions: [
@@ -45,6 +50,23 @@ export default function ComposePanel({ onClose, onAttachFromDrive }: ComposePane
       },
     },
   });
+
+  // Populate fields from compose context
+  useEffect(() => {
+    if (composeContext) {
+      setToField(composeContext.to ?? "");
+      setSubjectField(composeContext.subject ?? "");
+      if (editor && composeContext.body) {
+        editor.commands.setContent(composeContext.body);
+      }
+    } else {
+      setToField("");
+      setSubjectField("");
+      if (editor) {
+        editor.commands.setContent("");
+      }
+    }
+  }, [composeContext, editor]);
 
   useEffect(() => {
     if (!blockPickerOpen) return;
@@ -86,6 +108,19 @@ export default function ComposePanel({ onClose, onAttachFromDrive }: ComposePane
     [onClose]
   );
 
+  const handleFileAttach = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files) return;
+    const names = Array.from(files).map((f) => f.name);
+    setAttachedFiles((prev) => [...prev, ...names]);
+    // Reset input so the same file can be re-selected
+    e.target.value = "";
+  };
+
+  const removeAttachment = (index: number) => {
+    setAttachedFiles((prev) => prev.filter((_, i) => i !== index));
+  };
+
   return (
     <div className="h-full flex flex-col bg-bg-white">
       <div className="px-10 py-8 flex flex-col gap-0 flex-1 min-h-0">
@@ -101,7 +136,15 @@ export default function ComposePanel({ onClose, onAttachFromDrive }: ComposePane
 
           <div className="w-px h-5 bg-divider mx-1" />
 
-          <h2 className="text-sm font-semibold text-text-primary">New Message</h2>
+          <h2 className="text-sm font-semibold text-text-primary">
+            {composeContext?.mode === "reply"
+              ? "Reply"
+              : composeContext?.mode === "replyAll"
+                ? "Reply All"
+                : composeContext?.mode === "forward"
+                  ? "Forward"
+                  : "New Message"}
+          </h2>
 
           <div className="flex-1" />
 
@@ -128,6 +171,8 @@ export default function ComposePanel({ onClose, onAttachFromDrive }: ComposePane
           <input
             type="text"
             placeholder="recipient@example.com"
+            value={toField}
+            onChange={(e) => setToField(e.target.value)}
             className="flex-1 bg-transparent text-sm text-text-primary placeholder:text-text-tertiary focus:outline-none"
           />
         </div>
@@ -137,6 +182,8 @@ export default function ComposePanel({ onClose, onAttachFromDrive }: ComposePane
           <input
             type="text"
             placeholder="Subject"
+            value={subjectField}
+            onChange={(e) => setSubjectField(e.target.value)}
             className="w-full bg-transparent text-xl font-medium text-text-primary placeholder:text-text-tertiary focus:outline-none"
           />
         </div>
@@ -149,6 +196,27 @@ export default function ComposePanel({ onClose, onAttachFromDrive }: ComposePane
         <div className="flex-1 overflow-y-auto">
           <EditorContent editor={editor} />
         </div>
+
+        {/* Attachment chips */}
+        {attachedFiles.length > 0 && (
+          <div className="flex flex-wrap gap-2 pt-3">
+            {attachedFiles.map((name, i) => (
+              <span
+                key={`${name}-${i}`}
+                className="inline-flex items-center gap-1.5 bg-surface text-text-secondary text-xs font-medium px-2.5 py-1.5 rounded-lg"
+              >
+                <Paperclip className="w-3 h-3 shrink-0" strokeWidth={1.5} />
+                {name}
+                <button
+                  onClick={() => removeAttachment(i)}
+                  className="hover:text-text-primary cursor-pointer"
+                >
+                  <X className="w-3 h-3" strokeWidth={2} />
+                </button>
+              </span>
+            ))}
+          </div>
+        )}
 
         {/* Attachment toolbar */}
         <div className="border-t border-divider pt-4 mt-auto flex items-center gap-2">
@@ -172,11 +240,19 @@ export default function ComposePanel({ onClose, onAttachFromDrive }: ComposePane
             Attach from Drive
           </button>
           <button
+            onClick={() => fileInputRef.current?.click()}
             className="h-8 px-3 rounded-lg flex items-center gap-2 text-sm text-text-secondary hover:text-text-primary hover:bg-surface transition-colors duration-100 cursor-pointer"
           >
             <Paperclip className="w-4 h-4" strokeWidth={1.5} />
             Attach file
           </button>
+          <input
+            ref={fileInputRef}
+            type="file"
+            multiple
+            className="hidden"
+            onChange={handleFileAttach}
+          />
         </div>
       </div>
 

@@ -18,6 +18,8 @@ interface SidebarProps {
   onEmailSubViewChange?: (view: EmailSubView) => void;
   onCreateNewBlock?: () => void;
   onLogout?: () => void;
+  user?: { name: string; email: string };
+  onTodayClick?: () => void;
 }
 
 const settingsNav: { value: SettingsTab; label: string; icon: typeof User }[] = [
@@ -59,6 +61,8 @@ export default function Sidebar({
   onEmailSubViewChange,
   onCreateNewBlock,
   onLogout,
+  user,
+  onTodayClick,
 }: SidebarProps) {
   const [blocksExpanded, setBlocksExpanded] = useState(false);
 
@@ -130,7 +134,7 @@ export default function Sidebar({
               icon={CalendarDays}
               label="This Week"
               isActive={true}
-              onClick={() => {}}
+              onClick={() => onTodayClick?.()}
             />
             <SidebarNavItem
               icon={Calendar}
@@ -138,6 +142,7 @@ export default function Sidebar({
               isActive={false}
               onClick={() => {}}
               disabled
+              title="Coming soon"
             />
             <SidebarNavItem
               icon={Clock}
@@ -145,6 +150,7 @@ export default function Sidebar({
               isActive={false}
               onClick={() => {}}
               disabled
+              title="Coming soon"
             />
           </>
         )}
@@ -191,9 +197,9 @@ export default function Sidebar({
             className="flex-1 flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-surface/50 transition-colors duration-100 cursor-pointer min-w-0"
           >
             <div className="w-8 h-8 rounded-full bg-surface flex items-center justify-center text-[11px] font-medium text-text-secondary shrink-0 select-none">
-              You
+              {user ? user.name.split(" ").filter(Boolean).map((w) => w[0]!.toUpperCase()).slice(0, 2).join("") : "You"}
             </div>
-            <span className="text-xs text-text-tertiary truncate">you@laminar.design</span>
+            <span className="text-xs text-text-tertiary truncate">{user?.email ?? "you@laminar.design"}</span>
           </button>
           <button
             onClick={onLogout}

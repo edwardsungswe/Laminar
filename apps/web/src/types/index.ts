@@ -91,3 +91,10 @@ export interface ThemePreset {
   name: string;
   colors: ThemeColors;
 }
+
+export interface ComposeContext {
+  to?: string;
+  subject?: string;
+  body?: string;
+  mode: "new" | "reply" | "replyAll" | "forward";
+}

@@ -24,26 +24,39 @@ interface ReadingPaneProps {
   email: Email | null;
   onBack?: () => void;
   onSaveToDrive?: () => void;
+  onReply?: () => void;
+  onReplyAll?: () => void;
+  onForward?: () => void;
+  onArchive?: () => void;
+  onDelete?: () => void;
+  onToggleStar?: () => void;
+  onToggleRead?: () => void;
+  onShowToast?: (msg: string) => void;
 }
 
 function ActionButton({
   icon: Icon,
   label,
+  onClick,
+  className: extraClass,
 }: {
   icon: React.ComponentType<{ className?: string; strokeWidth?: number }>;
   label: string;
+  onClick?: () => void;
+  className?: string;
 }) {
   return (
     <button
       title={label}
-      className="w-9 h-9 rounded-lg flex items-center justify-center text-text-secondary hover:text-text-primary hover:bg-surface transition-colors duration-100 cursor-pointer"
+      onClick={onClick}
+      className={`w-9 h-9 rounded-lg flex items-center justify-center text-text-secondary hover:text-text-primary hover:bg-surface transition-colors duration-100 cursor-pointer ${extraClass ?? ""}`}
     >
       <Icon className="w-[18px] h-[18px]" strokeWidth={1.5} />
     </button>
   );
 }
 
-function MoreMenu({ onSaveToDrive }: { onSaveToDrive?: () => void }) {
+function LabelDropdown({ onShowToast }: { onShowToast?: (msg: string) => void }) {
   const [open, setOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -65,12 +78,74 @@ function MoreMenu({ onSaveToDrive }: { onSaveToDrive?: () => void }) {
     };
   }, [open]);
 
-  const items = [
-    { icon: Printer, label: "Print" },
-    { icon: Flag, label: "Report spam" },
-    { icon: BellOff, label: "Mute thread" },
-    { icon: EyeOff, label: "Mark as unread" },
-    { icon: ExternalLink, label: "Open in new window" },
+  const labels = ["Work", "Personal", "Important", "Finance"];
+
+  return (
+    <div className="relative" ref={menuRef}>
+      <button
+        onClick={() => setOpen(!open)}
+        title="Label"
+        className="w-9 h-9 rounded-lg flex items-center justify-center text-text-secondary hover:text-text-primary hover:bg-surface transition-colors duration-100 cursor-pointer"
+      >
+        <Tag className="w-[18px] h-[18px]" strokeWidth={1.5} />
+      </button>
+
+      {open && (
+        <div className="absolute left-0 top-11 bg-bg-white rounded-lg shadow-lg border border-divider py-1 w-[160px] z-30">
+          {labels.map((label) => (
+            <button
+              key={label}
+              onClick={() => {
+                setOpen(false);
+                onShowToast?.(`Label added: ${label}`);
+              }}
+              className="w-full px-3 py-2 flex items-center gap-2.5 text-sm text-text-secondary hover:bg-surface/50 hover:text-text-primary transition-colors duration-100 cursor-pointer"
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function MoreMenu({
+  onSaveToDrive,
+  onToggleRead,
+  onShowToast,
+}: {
+  onSaveToDrive?: () => void;
+  onToggleRead?: () => void;
+  onShowToast?: (msg: string) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const handleClick = (e: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setOpen(false);
+      }
+    };
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setOpen(false);
+    };
+    document.addEventListener("mousedown", handleClick);
+    document.addEventListener("keydown", handleEscape);
+    return () => {
+      document.removeEventListener("mousedown", handleClick);
+      document.removeEventListener("keydown", handleEscape);
+    };
+  }, [open]);
+
+  const items: { icon: typeof Printer; label: string; action: () => void }[] = [
+    { icon: Printer, label: "Print", action: () => window.print() },
+    { icon: Flag, label: "Report spam", action: () => onShowToast?.("Reported as spam") },
+    { icon: BellOff, label: "Mute thread", action: () => onShowToast?.("Thread muted") },
+    { icon: EyeOff, label: "Mark as unread", action: () => onToggleRead?.() },
+    { icon: ExternalLink, label: "Open in new window", action: () => onShowToast?.("Opening in new window...") },
   ];
 
   return (
@@ -99,7 +174,10 @@ function MoreMenu({ onSaveToDrive }: { onSaveToDrive?: () => void }) {
           {items.map((item) => (
             <button
               key={item.label}
-              onClick={() => setOpen(false)}
+              onClick={() => {
+                setOpen(false);
+                item.action();
+              }}
               className="w-full px-3 py-2 flex items-center gap-2.5 text-sm text-text-secondary hover:bg-surface/50 hover:text-text-primary transition-colors duration-100 cursor-pointer"
             >
               <item.icon className="w-4 h-4 shrink-0" strokeWidth={1.5} />
@@ -112,7 +190,19 @@ function MoreMenu({ onSaveToDrive }: { onSaveToDrive?: () => void }) {
   );
 }
 
-export default function ReadingPane({ email, onBack, onSaveToDrive }: ReadingPaneProps) {
+export default function ReadingPane({
+  email,
+  onBack,
+  onSaveToDrive,
+  onReply,
+  onReplyAll,
+  onForward,
+  onArchive,
+  onDelete,
+  onToggleStar,
+  onToggleRead,
+  onShowToast,
+}: ReadingPaneProps) {
   if (!email) return <EmptyState />;
 
   const avatar = getInitials(email.from.name);
@@ -135,20 +225,33 @@ export default function ReadingPane({ email, onBack, onSaveToDrive }: ReadingPan
 
           {onBack && <div className="w-px h-5 bg-divider mx-1" />}
 
-          <ActionButton icon={Reply} label="Reply" />
-          <ActionButton icon={ReplyAll} label="Reply all" />
-          <ActionButton icon={Forward} label="Forward" />
+          <ActionButton icon={Reply} label="Reply" onClick={onReply} />
+          <ActionButton icon={ReplyAll} label="Reply all" onClick={onReplyAll} />
+          <ActionButton icon={Forward} label="Forward" onClick={onForward} />
 
           <div className="w-px h-5 bg-divider mx-1" />
 
-          <ActionButton icon={Archive} label="Archive" />
-          <ActionButton icon={Trash2} label="Delete" />
-          <ActionButton icon={Star} label="Star" />
-          <ActionButton icon={Tag} label="Label" />
+          <ActionButton icon={Archive} label="Archive" onClick={onArchive} />
+          <ActionButton icon={Trash2} label="Delete" onClick={onDelete} />
+          <button
+            title="Star"
+            onClick={onToggleStar}
+            className="w-9 h-9 rounded-lg flex items-center justify-center text-text-secondary hover:text-text-primary hover:bg-surface transition-colors duration-100 cursor-pointer"
+          >
+            <Star
+              className={`w-[18px] h-[18px] ${email.isStarred ? "fill-amber-500 text-amber-500" : ""}`}
+              strokeWidth={1.5}
+            />
+          </button>
+          <LabelDropdown onShowToast={onShowToast} />
 
           <div className="flex-1" />
 
-          <MoreMenu onSaveToDrive={onSaveToDrive} />
+          <MoreMenu
+            onSaveToDrive={onSaveToDrive}
+            onToggleRead={onToggleRead}
+            onShowToast={onShowToast}
+          />
         </div>
 
         {/* Subject */}

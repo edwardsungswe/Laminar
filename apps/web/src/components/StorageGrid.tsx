@@ -54,7 +54,7 @@ export default function StorageGrid({
                 file={file}
                 isSelected={selectedFileId === file.id}
                 onSelect={() => onFileSelect(file.id)}
-                onDoubleClick={() => {}}
+                onDoubleClick={() => onFileSelect(file.id)}
                 onFavoriteToggle={() => onFavoriteToggle(file.id)}
                 onContextMenu={(e) => onContextMenu(file.id, e)}
               />

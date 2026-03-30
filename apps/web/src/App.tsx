@@ -6,8 +6,9 @@ import type {
   StorageSection,
   SettingsTab,
   EmailSubView,
+  ComposeContext,
 } from "@/types";
-import { MOCK_EMAILS, getEmailsByFolder } from "@/data/emails";
+import { MOCK_EMAILS } from "@/data/emails";
 import {
   events as MOCK_EVENTS,
   getWeekDates,
@@ -35,6 +36,7 @@ import BlockTemplatesView from "@/components/blocks/BlockTemplatesView";
 import BlockBuilder from "@/components/blocks/BlockBuilder";
 import { BlockTemplateProvider } from "@/stores/BlockTemplateContext";
 import { getFileById } from "@/data/files";
+import Toast from "@/components/Toast";
 
 function getMonday(d: Date): Date {
   const date = new Date(d);
@@ -72,8 +74,10 @@ export default function App() {
   const [appPickerOpen, setAppPickerOpen] = useState(false);
 
   // Email state
+  const [emails, setEmails] = useState(() => [...MOCK_EMAILS]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [composeOpen, setComposeOpen] = useState(false);
+  const [composeContext, setComposeContext] = useState<ComposeContext | null>(null);
   const [activeFolder, setActiveFolder] = useState<FolderKey>("inbox");
   const [searchQuery, setSearchQuery] = useState("");
   const [activeEmailSubView, setActiveEmailSubView] =
@@ -123,7 +127,13 @@ export default function App() {
 
   // Derived email values
   const filteredEmails = useMemo(() => {
-    let filtered = getEmailsByFolder(activeFolder);
+    let filtered: typeof emails;
+    if (activeFolder === "starred") filtered = emails.filter((e) => e.isStarred);
+    else if (activeFolder === "sent") filtered = [];
+    else if (activeFolder === "draft") filtered = [];
+    else if (activeFolder === "done") filtered = emails.filter((e) => e.isRead);
+    else filtered = emails;
+
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
       filtered = filtered.filter(
@@ -134,16 +144,16 @@ export default function App() {
       );
     }
     return filtered;
-  }, [activeFolder, searchQuery]);
+  }, [activeFolder, searchQuery, emails]);
 
   const selectedEmail = useMemo(
-    () => MOCK_EMAILS.find((e) => e.id === selectedId) ?? null,
-    [selectedId],
+    () => emails.find((e) => e.id === selectedId) ?? null,
+    [selectedId, emails],
   );
 
   const unreadCount = useMemo(
-    () => MOCK_EMAILS.filter((e) => !e.isRead).length,
-    [],
+    () => emails.filter((e) => !e.isRead).length,
+    [emails],
   );
 
   // Derived calendar values
@@ -182,6 +192,69 @@ export default function App() {
     setNewEventModalOpen(false);
   };
 
+  // Email mutation handlers
+  const handleToggleStar = (id: string) => {
+    setEmails((prev) =>
+      prev.map((e) => (e.id === id ? { ...e, isStarred: !e.isStarred } : e)),
+    );
+  };
+
+  const handleArchiveEmail = (id: string) => {
+    setEmails((prev) => prev.filter((e) => e.id !== id));
+    setSelectedId(null);
+    setToastMessage("Email archived");
+  };
+
+  const handleDeleteEmail = (id: string) => {
+    setEmails((prev) => prev.filter((e) => e.id !== id));
+    setSelectedId(null);
+    setToastMessage("Email deleted");
+  };
+
+  const handleToggleRead = (id: string) => {
+    setEmails((prev) =>
+      prev.map((e) => (e.id === id ? { ...e, isRead: !e.isRead } : e)),
+    );
+  };
+
+  // Compose context handlers
+  const handleReply = (email: typeof selectedEmail) => {
+    if (!email) return;
+    setComposeContext({
+      to: email.from.email,
+      subject: email.subject.startsWith("Re: ") ? email.subject : `Re: ${email.subject}`,
+      body: `\n\n---\nOn ${email.date.toLocaleDateString()}, ${email.from.name} wrote:\n> ${email.body.plain.split("\n").join("\n> ")}`,
+      mode: "reply",
+    });
+    setComposeOpen(true);
+    setSelectedId(null);
+  };
+
+  const handleReplyAll = (email: typeof selectedEmail) => {
+    if (!email) return;
+    const allRecipients = [email.from.email, ...email.to.map((r) => r.email)].join(", ");
+    setComposeContext({
+      to: allRecipients,
+      subject: email.subject.startsWith("Re: ") ? email.subject : `Re: ${email.subject}`,
+      body: `\n\n---\nOn ${email.date.toLocaleDateString()}, ${email.from.name} wrote:\n> ${email.body.plain.split("\n").join("\n> ")}`,
+      mode: "replyAll",
+    });
+    setComposeOpen(true);
+    setSelectedId(null);
+  };
+
+  const handleForward = (email: typeof selectedEmail) => {
+    if (!email) return;
+    setComposeContext({
+      to: "",
+      subject: email.subject.startsWith("Fwd: ") ? email.subject : `Fwd: ${email.subject}`,
+      body: `\n\n---\nForwarded message from ${email.from.name}:\n\n${email.body.plain}`,
+      mode: "forward",
+    });
+    setComposeOpen(true);
+    setSelectedId(null);
+  };
+
   if (!isLoggedIn) {
     return <LoginPage onLogin={handleLogin} />;
   }
@@ -213,6 +286,8 @@ export default function App() {
           onEmailSubViewChange={setActiveEmailSubView}
           onCreateNewBlock={() => setEditingBlockId(null)}
           onLogout={handleLogout}
+          user={MOCK_USER}
+          onTodayClick={handleToday}
         />
 
         {/* Main content area */}
@@ -226,6 +301,7 @@ export default function App() {
               activePage={activePage}
               activeFolder={activeFolder}
               onComposeClick={() => {
+                setComposeContext(null);
                 setComposeOpen(true);
                 setSelectedId(null);
               }}
@@ -297,6 +373,14 @@ export default function App() {
                         setDrivePickerMode("save");
                         setDrivePickerOpen(true);
                       }}
+                      onReply={() => handleReply(selectedEmail)}
+                      onReplyAll={() => handleReplyAll(selectedEmail)}
+                      onForward={() => handleForward(selectedEmail)}
+                      onArchive={() => selectedEmail && handleArchiveEmail(selectedEmail.id)}
+                      onDelete={() => selectedEmail && handleDeleteEmail(selectedEmail.id)}
+                      onToggleStar={() => selectedEmail && handleToggleStar(selectedEmail.id)}
+                      onToggleRead={() => selectedEmail && handleToggleRead(selectedEmail.id)}
+                      onShowToast={setToastMessage}
                     />
                   </div>
                 )}
@@ -308,6 +392,7 @@ export default function App() {
                         setDrivePickerMode("attach");
                         setDrivePickerOpen(true);
                       }}
+                      composeContext={composeContext}
                     />
                   </div>
                 )}
@@ -358,7 +443,11 @@ export default function App() {
             )}
 
             {activePage === "profile" && (
-              <ProfileView activeTab={activeSettingsTab} />
+              <ProfileView
+                activeTab={activeSettingsTab}
+                user={MOCK_USER}
+                onShowToast={setToastMessage}
+              />
             )}
 
             {activePage === "storage" && (
@@ -461,6 +550,15 @@ export default function App() {
             );
           }}
         />
+
+        {/* App-level Toast */}
+        {activePage !== "storage" && (
+          <Toast
+            message={toastMessage}
+            isVisible={!!toastMessage}
+            onDismiss={() => setToastMessage("")}
+          />
+        )}
       </div>
     </BlockTemplateProvider>
   );

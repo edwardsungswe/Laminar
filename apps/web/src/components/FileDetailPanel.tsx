@@ -140,7 +140,18 @@ export default function FileDetailPanel({
 
             {/* Action buttons */}
             <div className="flex flex-col">
-              <button className="w-full px-3 py-2.5 rounded-lg flex items-center gap-3 text-sm font-medium text-text-secondary hover:bg-surface/50 hover:text-text-primary transition-colors duration-100 cursor-pointer">
+              <button
+                onClick={() => {
+                  const blob = new Blob(["Mock file content"], { type: "text/plain" });
+                  const url = URL.createObjectURL(blob);
+                  const a = document.createElement("a");
+                  a.href = url;
+                  a.download = file.name;
+                  a.click();
+                  URL.revokeObjectURL(url);
+                }}
+                className="w-full px-3 py-2.5 rounded-lg flex items-center gap-3 text-sm font-medium text-text-secondary hover:bg-surface/50 hover:text-text-primary transition-colors duration-100 cursor-pointer"
+              >
                 <Download className="w-[18px] h-[18px]" strokeWidth={1.5} />
                 Download
               </button>
