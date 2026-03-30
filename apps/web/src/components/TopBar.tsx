@@ -38,6 +38,7 @@ interface TopBarProps {
   storageViewMode?: "grid" | "list";
   onToggleViewMode?: () => void;
   settingsTab?: SettingsTab;
+  onNewEvent?: () => void;
 }
 
 export default function TopBar({
@@ -53,6 +54,7 @@ export default function TopBar({
   storageViewMode,
   onToggleViewMode,
   settingsTab,
+  onNewEvent,
 }: TopBarProps) {
   return (
     <header className="h-14 border-b border-divider flex items-center px-6 gap-4 bg-bg-white shrink-0">
@@ -105,7 +107,7 @@ export default function TopBar({
           <div className="flex-1" />
 
           <button
-            onClick={() => {}}
+            onClick={onNewEvent}
             className="h-9 px-4 bg-accent hover:bg-accent-hover text-white text-sm font-medium rounded-lg transition-colors duration-100 flex items-center gap-2 cursor-pointer"
           >
             <Plus className="w-4 h-4" strokeWidth={1.5} />

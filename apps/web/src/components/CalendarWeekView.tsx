@@ -5,6 +5,7 @@ import CalendarDayColumn from "./CalendarDayColumn";
 
 interface CalendarWeekViewProps {
   weekDates: string[];
+  events: CalendarEvent[];
   onEventClick: (event: CalendarEvent) => void;
 }
 
@@ -19,6 +20,7 @@ function formatHour(hour: number): string {
 
 export default function CalendarWeekView({
   weekDates,
+  events,
   onEventClick,
 }: CalendarWeekViewProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -66,6 +68,7 @@ export default function CalendarWeekView({
                   dayLabel={dayLabels[i]!}
                   dateNumber={d.getDate()}
                   isToday={date === todayStr}
+                  events={events.filter((e) => e.date === date)}
                   onEventClick={onEventClick}
                 />
               );

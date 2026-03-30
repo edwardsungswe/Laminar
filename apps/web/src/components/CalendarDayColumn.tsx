@@ -1,4 +1,4 @@
-import { HOUR_HEIGHT, DAY_START_HOUR, DAY_END_HOUR, getEventsForDate } from "@/data/events";
+import { HOUR_HEIGHT, DAY_START_HOUR, DAY_END_HOUR } from "@/data/events";
 import type { CalendarEvent } from "@/data/events";
 import CalendarEventBlock from "./CalendarEventBlock";
 
@@ -7,19 +7,21 @@ interface CalendarDayColumnProps {
   dayLabel: string;
   dateNumber: number;
   isToday: boolean;
+  events: CalendarEvent[];
   onEventClick: (event: CalendarEvent) => void;
 }
 
 const totalHours = DAY_END_HOUR - DAY_START_HOUR;
 
 export default function CalendarDayColumn({
-  date,
+  date: _date,
   dayLabel,
   dateNumber,
   isToday,
+  events,
   onEventClick,
 }: CalendarDayColumnProps) {
-  const dayEvents = getEventsForDate(date);
+  const dayEvents = events;
 
   return (
     <div className={`flex-1 min-w-0 border-r border-divider last:border-r-0 ${isToday ? "bg-accent/[0.02]" : ""}`}>

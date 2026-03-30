@@ -2,8 +2,9 @@ import { useState, useMemo } from "react";
 import { Search, X } from "lucide-react";
 import type { AppPage, FolderKey, StorageSection, SettingsTab, EmailSubView } from "@/types";
 import { MOCK_EMAILS, getEmailsByFolder } from "@/data/emails";
-import { getWeekDates, formatWeekLabel } from "@/data/events";
+import { events as MOCK_EVENTS, getWeekDates, formatWeekLabel } from "@/data/events";
 import type { CalendarEvent } from "@/data/events";
+import NewEventModal from "@/components/NewEventModal";
 import Sidebar from "@/components/Sidebar";
 import TopBar from "@/components/TopBar";
 import EmailList from "@/components/EmailList";
@@ -50,6 +51,8 @@ export default function App() {
   const [currentWeekStart, setCurrentWeekStart] = useState<Date>(() => getMonday(new Date()));
   const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null);
   const [eventDetailOpen, setEventDetailOpen] = useState(false);
+  const [calendarEvents, setCalendarEvents] = useState<CalendarEvent[]>(MOCK_EVENTS);
+  const [newEventModalOpen, setNewEventModalOpen] = useState(false);
 
   // Storage state
   const [activeStorageSection, setActiveStorageSection] = useState<StorageSection>("all");
@@ -118,6 +121,11 @@ export default function App() {
     setCurrentWeekStart(getMonday(new Date()));
   };
 
+  const handleCreateEvent = (event: CalendarEvent) => {
+    setCalendarEvents((prev) => [...prev, event]);
+    setNewEventModalOpen(false);
+  };
+
   return (
     <BlockTemplateProvider>
     <div className="h-screen flex overflow-hidden">
@@ -165,6 +173,7 @@ export default function App() {
             storageViewMode={storageViewMode}
             onToggleViewMode={() => setStorageViewMode((m) => m === "grid" ? "list" : "grid")}
             settingsTab={activePage === "profile" ? activeSettingsTab : undefined}
+            onNewEvent={() => setNewEventModalOpen(true)}
           />
         )}
 
@@ -255,6 +264,7 @@ export default function App() {
             <>
               <CalendarWeekView
                 weekDates={weekDates}
+                events={calendarEvents}
                 onEventClick={(event) => {
                   setSelectedEvent(event);
                   setEventDetailOpen(true);
@@ -351,6 +361,13 @@ export default function App() {
           />
         ) : null;
       })()}
+
+      <NewEventModal
+        isOpen={newEventModalOpen}
+        onClose={() => setNewEventModalOpen(false)}
+        onSave={handleCreateEvent}
+        currentWeekStart={currentWeekStart}
+      />
 
       <DrivePickerModal
         mode={drivePickerMode}
